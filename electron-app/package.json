@@ -1,0 +1,27 @@
+{
+  "name": "docker-swarm-management-kit-electron",
+  "version": "1.0.0",
+  "description": "Electron app for managing Docker Swarm configurations and secrets.",
+  "main": "src/main.ts",
+  "scripts": {
+    "start": "electron .",
+    "build": "tsc",
+    "package": "electron-packager . DockerSwarmManagementKit --platform=win32,linux,mas --arch=x64 --out=dist"
+  },
+  "dependencies": {
+    "electron": "^25.0.0",
+    "axios": "^0.21.1"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.4",
+    "electron-packager": "^15.4.0"
+  },
+  "keywords": [
+    "docker",
+    "swarm",
+    "electron",
+    "management"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

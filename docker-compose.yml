@@ -1,0 +1,68 @@
+services:
+  docker-dind:
+    image: docker:dind
+    privileged: true
+    volumes:
+      - dind-data:/var/lib/docker
+    networks:
+      - swarm-network
+    restart: unless-stopped
+    expose:
+      - "2375"
+    healthcheck:
+      test: ["CMD", "docker", "-H=localhost:2375", "node", "ls"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: >
+      sh -c "
+        dockerd --host=unix:///var/run/docker.sock --host=tcp://0.0.0.0:2375 &
+        sleep 30 &&
+        for i in 1 2 3 4 5; do
+          docker -H tcp://127.0.0.1:2375 swarm init && break || sleep 5;
+        done &&
+        wait
+      "
+
+  web-app:
+    build:
+      context: ./web-app
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - DOCKER_HOST=tcp://docker-dind:2375
+      - NODE_ENV=development
+    volumes:
+      - ./web-app/src:/usr/src/app/src
+      - ./web-app/public:/usr/src/app/public
+      - ./web-app/package.json:/usr/src/app/package.json
+      - ./web-app/tsconfig.json:/usr/src/app/tsconfig.json
+      - ./scripts:/usr/src/app/scripts
+    networks:
+      - swarm-network
+    depends_on:
+      docker-dind:
+        condition: service_healthy
+
+  test-data:
+    image: docker:cli
+    environment:
+      - DOCKER_HOST=tcp://docker-dind:2375
+    volumes:
+      - ./scripts:/scripts
+    networks:
+      - swarm-network
+    depends_on:
+      docker-dind:
+        condition: service_healthy
+    command: /scripts/populate-test-data.sh
+    restart: "no"
+
+networks:
+  swarm-network:
+    driver: bridge
+
+volumes:
+  dind-data:

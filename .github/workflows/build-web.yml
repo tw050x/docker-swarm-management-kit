@@ -1,0 +1,43 @@
+name: Build Web Application
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: |
+          cd web-app
+          npm install
+
+      - name: Build the application
+        run: |
+          cd web-app
+          npm run build
+
+      - name: Build Docker image
+        run: |
+          cd web-app
+          docker build -t docker-swarm-management-kit .
+
+      - name: Push Docker image
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker tag docker-swarm-management-kit ${{ secrets.DOCKER_USERNAME }}/docker-swarm-management-kit:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/docker-swarm-management-kit:latest

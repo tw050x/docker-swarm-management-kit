@@ -1,0 +1,21 @@
+FROM node:14
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies (including dev dependencies for nodemon)
+RUN npm install
+
+# Copy the entrypoint script
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Use the entrypoint script to ensure certificates are available before starting
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["npm", "run", "dev"]

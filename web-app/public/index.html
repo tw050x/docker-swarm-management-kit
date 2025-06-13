@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Swarm Management Kit</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <div class="logo">
+                    <i class="fab fa-docker"></i>
+                    <span>Docker Swarm Management Kit</span>
+                </div>
+                <nav class="nav">
+                    <button class="nav-btn active" data-tab="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </button>
+                    <button class="nav-btn" data-tab="secrets">
+                        <i class="fas fa-key"></i>
+                        Secrets
+                    </button>
+                    <button class="nav-btn" data-tab="configs">
+                        <i class="fas fa-cog"></i>
+                        Configs
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="container">
+                    <div class="page-header">
+                        <h1>Dashboard</h1>
+                        <p>Overview of your Docker Swarm management</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon secrets">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="secrets-count">-</h3>
+                                <p>Secrets</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon configs">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="configs-count">-</h3>
+                                <p>Configs</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="recent-activity">
+                        <h2>Quick Actions</h2>
+                        <div class="action-cards">
+                            <div class="action-card" onclick="switchTab('secrets')">
+                                <i class="fas fa-plus-circle"></i>
+                                <h3>Create Secret</h3>
+                                <p>Add a new secret to your swarm</p>
+                            </div>
+                            <div class="action-card" onclick="switchTab('configs')">
+                                <i class="fas fa-plus-circle"></i>
+                                <h3>Create Config</h3>
+                                <p>Add a new configuration to your swarm</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secrets Tab -->
+            <div id="secrets" class="tab-content">
+                <div class="container">
+                    <div class="page-header">
+                        <h1>Secrets Management</h1>
+                        <button class="btn btn-primary" onclick="showCreateSecretModal()">
+                            <i class="fas fa-plus"></i>
+                            Create Secret
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h2>Secrets List</h2>
+                            <button class="btn btn-secondary" onclick="loadSecrets()">
+                                <i class="fas fa-refresh"></i>
+                                Refresh
+                            </button>
+                        </div>
+                        <table class="data-table" id="secrets-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>ID</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="secrets-tbody">
+                                <tr>
+                                    <td colspan="4" class="loading">Loading secrets...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configs Tab -->
+            <div id="configs" class="tab-content">
+                <div class="container">
+                    <div class="page-header">
+                        <h1>Configs Management</h1>
+                        <button class="btn btn-primary" onclick="showCreateConfigModal()">
+                            <i class="fas fa-plus"></i>
+                            Create Config
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h2>Configs List</h2>
+                            <button class="btn btn-secondary" onclick="loadConfigs()">
+                                <i class="fas fa-refresh"></i>
+                                Refresh
+                            </button>
+                        </div>
+                        <table class="data-table" id="configs-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>ID</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="configs-tbody">
+                                <tr>
+                                    <td colspan="4" class="loading">Loading configs...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Secret Modal -->
+    <div id="create-secret-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Secret</h2>
+                <button class="close" onclick="closeModal('create-secret-modal')">&times;</button>
+            </div>
+            <form id="create-secret-form">
+                <div class="form-group">
+                    <label for="secret-name">Secret Name</label>
+                    <input type="text" id="secret-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="secret-data">Secret Data</label>
+                    <textarea id="secret-data" name="data" rows="5" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('create-secret-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Secret</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Config Modal -->
+    <div id="create-config-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Config</h2>
+                <button class="close" onclick="closeModal('create-config-modal')">&times;</button>
+            </div>
+            <form id="create-config-form">
+                <div class="form-group">
+                    <label for="config-name">Config Name</label>
+                    <input type="text" id="config-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="config-data">Config Data</label>
+                    <textarea id="config-data" name="data" rows="10" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('create-config-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Config</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Secret Modal -->
+    <div id="edit-secret-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Secret</h2>
+                <button class="close" onclick="closeModal('edit-secret-modal')">&times;</button>
+            </div>
+            <form id="edit-secret-form">
+                <input type="hidden" id="edit-secret-id">
+                <div class="form-group">
+                    <label for="edit-secret-name">Secret Name</label>
+                    <input type="text" id="edit-secret-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-secret-data">Secret Data</label>
+                    <textarea id="edit-secret-data" name="data" rows="5" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('edit-secret-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Secret</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Config Modal -->
+    <div id="edit-config-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Config</h2>
+                <button class="close" onclick="closeModal('edit-config-modal')">&times;</button>
+            </div>
+            <form id="edit-config-form">
+                <input type="hidden" id="edit-config-id">
+                <div class="form-group">
+                    <label for="edit-config-name">Config Name</label>
+                    <input type="text" id="edit-config-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-config-data">Config Data</label>
+                    <textarea id="edit-config-data" name="data" rows="10" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('edit-config-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Config</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="message-container"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
