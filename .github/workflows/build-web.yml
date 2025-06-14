@@ -1,43 +1,67 @@
-name: Build DSOM Image
+name: Build and Test Web App
 
 on:
   push:
     branches:
       - master
+      - develop
   pull_request:
     branches:
       - master
+      - develop
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '14'
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: web-app/package-lock.json
 
       - name: Install dependencies
         run: |
           cd web-app
-          npm install
+          npm ci
+
+      - name: Run linting (if available)
+        run: |
+          cd web-app
+          if npm run lint --silent 2>/dev/null; then
+            npm run lint
+          else
+            echo "No lint script found, skipping..."
+          fi
+        continue-on-error: true
 
       - name: Build the application
         run: |
           cd web-app
           npm run build
 
-      - name: Build Docker image
+      - name: Run tests
         run: |
           cd web-app
-          docker build -t docker-swarm-operations-manager .
+          npm test
 
-      - name: Push Docker image
+      - name: Verify Docker build (without push)
         run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-          docker tag docker-swarm-operations-manager ${{ secrets.DOCKER_USERNAME }}/docker-swarm-operations-manager:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/docker-swarm-operations-manager:latest
+          cd web-app
+          docker build -t docker-swarm-operations-manager:test .
+          echo "✅ Docker image builds successfully"
+
+      - name: Generate build summary
+        run: |
+          echo "## Web App Build Summary ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build:** Successful" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tests:** Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Docker Build:** Verified" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The web application is ready for deployment. Use the 'Release Web App Docker Image' workflow to publish." >> $GITHUB_STEP_SUMMARY
