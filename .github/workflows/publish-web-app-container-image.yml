@@ -1,4 +1,4 @@
-name: Release Web App Docker Image
+name: Publish Web App Container Image
 
 on:
   workflow_dispatch:
@@ -91,23 +91,6 @@ jobs:
           subject-name: ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}
           subject-digest: ${{ steps.build.outputs.digest }}
           push-to-registry: true
-
-      - name: Debug Docker Hub info
-        run: |
-          echo "Docker Hub Username: ${{ secrets.DOCKER_USERNAME }}"
-          echo "Repository: ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}"
-          echo "README file exists: $(test -f ./DOCKERHUB.md && echo 'YES' || echo 'NO')"
-          echo "README file size: $(wc -c < ./DOCKERHUB.md) bytes"
-
-      - name: Update Docker Hub description
-        uses: peter-evans/dockerhub-description@v4
-        continue-on-error: true
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}
-          readme-filepath: ./DOCKERHUB.md
-          short-description: "A comprehensive solution for managing Docker Swarm clusters with both web-based and desktop interfaces."
 
       - name: Generate deployment summary
         run: |
