@@ -3,7 +3,7 @@ services:
     image: docker:dind
     privileged: true
     volumes:
-      - dind-data:/var/lib/docker
+      - docker-data:/var/lib/docker
     networks:
       - swarm-network
     restart: unless-stopped
@@ -46,23 +46,9 @@ services:
       docker-dind:
         condition: service_healthy
 
-  test-data:
-    image: docker:cli
-    environment:
-      - DOCKER_HOST=tcp://docker-dind:2375
-    volumes:
-      - ./scripts:/scripts
-    networks:
-      - swarm-network
-    depends_on:
-      docker-dind:
-        condition: service_healthy
-    command: /scripts/populate-test-data.sh
-    restart: "no"
-
 networks:
   swarm-network:
     driver: bridge
 
 volumes:
-  dind-data:
+  docker-data:
