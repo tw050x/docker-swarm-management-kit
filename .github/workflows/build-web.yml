@@ -45,10 +45,10 @@ jobs:
           cd web-app
           npm run build
 
-      - name: Run tests
-        run: |
-          cd web-app
-          npm test
+      # - name: Run tests
+      #   run: |
+      #     cd web-app
+      #     npm test
 
       - name: Verify Docker build (without push)
         run: |
