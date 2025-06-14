@@ -2,14 +2,6 @@ name: Update Docker Hub Description
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main, master]
-    paths:
-      - 'DOCKERHUB.md'
-      - '.github/workflows/update-dockerhub-description.yml'
-  schedule:
-    # Run weekly on Sundays at 06:00 UTC to keep description up to date
-    - cron: '0 6 * * 0'
 
 env:
   DOCKER_IMAGE_NAME: docker-swarm-operations-manager

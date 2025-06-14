@@ -8,8 +8,6 @@ on:
         required: true
         default: 'latest'
         type: string
-  release:
-    types: [published]
 
 env:
   DOCKER_IMAGE_NAME: docker-swarm-operations-manager
