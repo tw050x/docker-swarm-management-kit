@@ -10,7 +10,7 @@ services:
     expose:
       - "2375"
     healthcheck:
-      test: ["CMD", "docker", "-H=localhost:2375", "node", "ls"]
+      test: ["CMD", "sh", "-c", "docker -H=localhost:2375 info >/dev/null 2>&1 && (docker -H=localhost:2375 info | grep -q 'Swarm: active' || docker -H=localhost:2375 info | grep -q 'Swarm: inactive')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -19,9 +19,13 @@ services:
       sh -c "
         dockerd --host=unix:///var/run/docker.sock --host=tcp://0.0.0.0:2375 &
         sleep 30 &&
-        for i in 1 2 3 4 5; do
-          docker -H tcp://127.0.0.1:2375 swarm init && break || sleep 5;
-        done &&
+        if ! docker -H tcp://127.0.0.1:2375 info | grep -q 'Swarm: active'; then
+          for i in 1 2 3 4 5; do
+            docker -H tcp://127.0.0.1:2375 swarm init && break || sleep 5;
+          done
+        else
+          echo 'Swarm already initialized'
+        fi &&
         wait
       "
 
