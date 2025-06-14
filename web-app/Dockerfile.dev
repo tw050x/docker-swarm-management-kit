@@ -1,4 +1,4 @@
-FROM node:14
+FROM node:20-alpine
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -10,7 +10,7 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the entrypoint script
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Expose the port the app runs on
