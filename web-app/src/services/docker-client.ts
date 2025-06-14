@@ -2,7 +2,7 @@ import Docker from 'dockerode';
 
 // Docker client helper (non-TLS)
 function createDockerClient(): Docker {
-    const dockerHost = process.env.DOCKER_HOST || 'tcp://localhost:2375';
+    const dockerHost = process.env.DOCKER_HOST;
 
     // Parse the host and port from the Docker host URL
     let host: string;
