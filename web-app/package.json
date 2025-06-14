@@ -1,5 +1,5 @@
 {
-  "name": "docker-swarm-management-kit-web",
+  "name": "docker-swarm-operations-manager",
   "version": "1.0.0",
   "description": "Web application for managing Docker Swarm configurations and secrets.",
   "main": "src/app.ts",
