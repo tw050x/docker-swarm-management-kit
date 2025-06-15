@@ -29,7 +29,7 @@ jobs:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: ${{ vars.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}
-          readme-filepath: ./DOCKERHUB.md
+          readme-filepath: ./web-app/OVERVIEW.md
 
       - name: Generate summary
         run: |
